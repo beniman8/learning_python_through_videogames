@@ -8,6 +8,9 @@ display_surface= pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
 
 running= True
 
+#surface 
+surface = pygame.Surface((100,200))
+
 while running:
     # Event loop 
     for event in pygame.event.get():
@@ -18,8 +21,8 @@ while running:
     # Draw the game
     
     
-    display_surface.fill('red')
-    
+    display_surface.fill('darkgray')
+    display_surface.blit(surface,(100,150))
     pygame.display.update()# update the whole window
     # pygame.display.flip()()# update part of the window
     
