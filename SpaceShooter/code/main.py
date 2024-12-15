@@ -6,9 +6,10 @@ from random import randint
 pygame.init()
 pygame.display.set_caption("Space Shooter")
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
+FRAME_RATE = 60
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 CENTER_OF_THE_WINDOW = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-
+clock = pygame.time.Clock()
 running = True
 
 # plain surface
@@ -21,8 +22,8 @@ path = join("images", "player.png")
 player_surf = pygame.image.load(path).convert_alpha()
 # create a rectangle from the player that can be better manipulated in the game
 player_rect = player_surf.get_frect(center=CENTER_OF_THE_WINDOW)
-PLAYER_DIRECTION = 1
-PLAYER_SPEED = 0.4
+PLAYER_DIRECTION = pygame.math.Vector2(1,1)
+PLAYER_SPEED = 300
 
 # importing stars
 star_path = join("images", "star.png")
@@ -49,6 +50,7 @@ laser_rect = laser_surface.get_frect(bottomleft=(20, WINDOW_HEIGHT - 20))
 
 
 while running:
+    dt = clock.tick(FRAME_RATE) / 1000
     # Event loop
     for event in pygame.event.get():
         # inside this loop we can check for keyboard input mouse input and more.
@@ -72,13 +74,18 @@ while running:
     display_surface.blit(laser_surface, laser_rect)
 
     # player movement
-    player_rect.x += PLAYER_DIRECTION * PLAYER_SPEED
-
+    
+    if player_rect.right >= WINDOW_WIDTH or player_rect.left < 0:
+        PLAYER_DIRECTION.x *=-1
+    if player_rect.bottom >= WINDOW_HEIGHT or player_rect.top < 0:
+        PLAYER_DIRECTION.y *=-1
+        
+    player_rect.center += PLAYER_DIRECTION * PLAYER_SPEED * dt
     # if the right side of the rectangle is greater than the window's width
     # or if the left side of the rectangle is smaller than zero or the beginning of the windows width
     # reverse the direction by multiplying it by negative one
-    if player_rect.right > WINDOW_WIDTH or player_rect.left < 0:
-        PLAYER_DIRECTION *= -1
+    # if player_rect.right > WINDOW_WIDTH or player_rect.left < 0:
+    #     PLAYER_DIRECTION *= -1
 
     # display the ship or player
     display_surface.blit(player_surf, player_rect)
