@@ -22,7 +22,7 @@ path = join("images", "player.png")
 player_surf = pygame.image.load(path).convert_alpha()
 # create a rectangle from the player that can be better manipulated in the game
 player_rect = player_surf.get_frect(center=CENTER_OF_THE_WINDOW)
-PLAYER_DIRECTION = pygame.math.Vector2(1,1)
+PLAYER_DIRECTION = pygame.math.Vector2(0, 0)
 PLAYER_SPEED = 300
 
 # importing stars
@@ -57,8 +57,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Draw the game
+        # if event.type == pygame.K:
+        #     pass
 
+    # input game control
+    keys = pygame.key.get_pressed()
+
+    PLAYER_DIRECTION.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+    PLAYER_DIRECTION.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+    PLAYER_DIRECTION = (
+        PLAYER_DIRECTION.normalize() if PLAYER_DIRECTION else PLAYER_DIRECTION
+    )
+
+    recently_pressed = pygame.key.get_just_pressed()
+    if recently_pressed[pygame.K_SPACE]:
+        print('Fire Laser')
+    # if keys[pygame.K_RIGHT]:
+    #     print('right')
+    #     PLAYER_DIRECTION.x = 1
+    # else:
+    #     PLAYER_DIRECTION.x = 0
+
+    # Draw the game
     # display the background
     display_surface.fill("darkgray")
     # display the stars
@@ -74,12 +94,12 @@ while running:
     display_surface.blit(laser_surface, laser_rect)
 
     # player movement
-    
-    if player_rect.right >= WINDOW_WIDTH or player_rect.left < 0:
-        PLAYER_DIRECTION.x *=-1
-    if player_rect.bottom >= WINDOW_HEIGHT or player_rect.top < 0:
-        PLAYER_DIRECTION.y *=-1
-        
+
+    # if player_rect.right >= WINDOW_WIDTH or player_rect.left < 0:
+    #     PLAYER_DIRECTION.x *=-1
+    # if player_rect.bottom >= WINDOW_HEIGHT or player_rect.top < 0:
+    #     PLAYER_DIRECTION.y *=-1
+
     player_rect.center += PLAYER_DIRECTION * PLAYER_SPEED * dt
     # if the right side of the rectangle is greater than the window's width
     # or if the left side of the rectangle is smaller than zero or the beginning of the windows width
