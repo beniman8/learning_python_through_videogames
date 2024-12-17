@@ -11,28 +11,53 @@ display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 CENTER_OF_THE_WINDOW = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 clock = pygame.time.Clock()
 running = True
+NUMBER_OF_STARS=100
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.image = pygame.image.load(join("images", "player.png")).convert_alpha()
+        self.rect = self.image.get_frect(center=CENTER_OF_THE_WINDOW)
+        self.direction = pygame.math.Vector2()
+        self.speed = 300
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+
+        self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+        self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        self.direction = self.direction.normalize() if self.direction else self.direction
+        self.rect.center += self.direction * self.speed * dt
+        
+        recent_keys = pygame.key.get_just_pressed()
+        if recent_keys[pygame.K_SPACE]:
+            print('Fire Laser')
+
+class Star(pygame.sprite.Sprite):
+    
+    def __init__(self, groups,surf):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(center=(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)))
+        
+
+
+        
+
 
 # plain surface
 surface = pygame.Surface((100, 200))
 surface.fill("blue")
 x, y = 100, 150
 
-# import an image as a surface
-path = join("images", "player.png")
-player_surf = pygame.image.load(path).convert_alpha()
-# create a rectangle from the player that can be better manipulated in the game
-player_rect = player_surf.get_frect(center=CENTER_OF_THE_WINDOW)
-PLAYER_DIRECTION = pygame.math.Vector2(0, 0)
-PLAYER_SPEED = 300
 
-# importing stars
-star_path = join("images", "star.png")
-star_surf = pygame.image.load(star_path).convert_alpha()
-number_of_stars = 50
-star_positions = {
-    (randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT))
-    for star in range(number_of_stars)
-}
+all_sprites = pygame.sprite.Group()
+
+star_surf = pygame.image.load(join("images", "star.png")).convert_alpha()
+for i in range(NUMBER_OF_STARS):
+    Star(all_sprites,star_surf)
+player = Player(all_sprites)
 
 # import meteorite
 meteor_path = join("images", "meteor.png")
@@ -57,61 +82,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # if event.type == pygame.K:
-        #     pass
-
-    # input game control
-    keys = pygame.key.get_pressed()
-
-    PLAYER_DIRECTION.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
-    PLAYER_DIRECTION.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
-    PLAYER_DIRECTION = (
-        PLAYER_DIRECTION.normalize() if PLAYER_DIRECTION else PLAYER_DIRECTION
-    )
-
-    recently_pressed = pygame.key.get_just_pressed()
-    if recently_pressed[pygame.K_SPACE]:
-        print('Fire Laser')
-    # if keys[pygame.K_RIGHT]:
-    #     print('right')
-    #     PLAYER_DIRECTION.x = 1
-    # else:
-    #     PLAYER_DIRECTION.x = 0
-
+    all_sprites.update(dt)
     # Draw the game
     # display the background
     display_surface.fill("darkgray")
-    # display the stars
-    for position in star_positions:
-        display_surface.blit(star_surf, position)
+    # draw the sprite at a certain target for us its the display_surface
+    all_sprites.draw(display_surface)
+    
+    pygame.display.update() 
 
-    # display_surface.blit(surface, (x, y))
-
-    # display meteorite
-    display_surface.blit(meteor_surface, meteor_rect)
-
-    # display laser
-    display_surface.blit(laser_surface, laser_rect)
-
-    # player movement
-
-    # if player_rect.right >= WINDOW_WIDTH or player_rect.left < 0:
-    #     PLAYER_DIRECTION.x *=-1
-    # if player_rect.bottom >= WINDOW_HEIGHT or player_rect.top < 0:
-    #     PLAYER_DIRECTION.y *=-1
-
-    player_rect.center += PLAYER_DIRECTION * PLAYER_SPEED * dt
-    # if the right side of the rectangle is greater than the window's width
-    # or if the left side of the rectangle is smaller than zero or the beginning of the windows width
-    # reverse the direction by multiplying it by negative one
-    # if player_rect.right > WINDOW_WIDTH or player_rect.left < 0:
-    #     PLAYER_DIRECTION *= -1
-
-    # display the ship or player
-    display_surface.blit(player_surf, player_rect)
-
-    pygame.display.update()  # update the whole window
-    # pygame.display.flip()()# update part of the window
 
 
 pygame.quit()
