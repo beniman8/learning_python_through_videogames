@@ -35,8 +35,8 @@ class Player(pygame.sprite.Sprite):
                 self.can_shoot = True
 
     def update(self, dt):
+        # player movement
         keys = pygame.key.get_pressed()
-
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         self.direction = (
@@ -44,6 +44,7 @@ class Player(pygame.sprite.Sprite):
         )
         self.rect.center += self.direction * self.speed * dt
 
+        # shooting mechanism
         recent_keys = pygame.key.get_just_pressed()
         if recent_keys[pygame.K_SPACE] and self.can_shoot:
             Laser(laser_surface, self.rect.midtop, (all_sprites,laser_sprites))
@@ -61,6 +62,7 @@ class Laser(pygame.sprite.Sprite):
         self.speed = 400
 
     def update(self, dt):
+        # laser movement
         self.rect.centery -= self.speed * dt
         if self.rect.bottom < 0:
             self.kill()
@@ -89,7 +91,10 @@ class Meteor(pygame.sprite.Sprite):
 
     def update(self, *args):
 
+        # meteor movement
         self.rect.center += self.direction * self.speed * args[0]
+        
+        # meteor life span
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= self.life_duration:
             self.kill()
@@ -119,8 +124,11 @@ all_sprites = pygame.sprite.Group()
 meteor_sprites = pygame.sprite.Group()
 laser_sprites = pygame.sprite.Group()
 
+# creating many stars
 for i in range(NUMBER_OF_STARS):
     Star(all_sprites, star_surf)
+
+# creating the player
 player = Player(all_sprites)
 
 # custom event -> meteor event
