@@ -9,6 +9,7 @@ WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 FRAME_RATE = 60
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 CENTER_OF_THE_WINDOW = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+GAME_BACKGROUND_COLOR = '#3a2e3f'
 clock = pygame.time.Clock()
 running = True
 NUMBER_OF_STARS = 100
@@ -106,18 +107,32 @@ def collision():
     #collision 
     player_meteor_collision =pygame.sprite.spritecollide(player,meteor_sprites,True)
     if player_meteor_collision:
-        running=False
+        # running=False
         print('collided')
     for laser in laser_sprites:
         collided_sprites=pygame.sprite.spritecollide(laser,meteor_sprites,True)
         if collided_sprites:
             laser.kill()
     
+def display_score():
+    current_time = pygame.time.get_ticks()//100
+    text_surf = font.render(str(current_time),True,'white')
+    text_rect = text_surf.get_frect(midbottom=(WINDOW_WIDTH/2,WINDOW_HEIGHT - 50))
+    display_surface.blit(text_surf,text_rect)
+    pygame.draw.rect(display_surface,'red',text_rect.inflate(20,10).move(0,-8),5,10)
+    
 
 # game imports
 star_surf = pygame.image.load(join("images", "star.png")).convert_alpha()
 meteor_surface = pygame.image.load(join("images", "meteor.png")).convert_alpha()
 laser_surface = pygame.image.load(join("images", "laser.png")).convert_alpha()
+font = pygame.font.Font(join('images','Oxanium-Bold.ttf'),40)
+
+# find font color in google color picker
+font_color_rbg = (0,255,255)
+font_color_hex = '#dfdfdf'
+text = font.render('text',True,font_color_hex)
+
 
 # creating sprite
 all_sprites = pygame.sprite.Group()
@@ -153,7 +168,8 @@ while running:
     
     # Draw the game
     # display the background
-    display_surface.fill("darkgray")
+    display_surface.fill(GAME_BACKGROUND_COLOR)
+    display_score()
     # draw the sprite at a certain target for us its the display_surface
     all_sprites.draw(display_surface)
 
